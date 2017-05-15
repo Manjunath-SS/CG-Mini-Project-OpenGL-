@@ -1,10 +1,10 @@
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glut.h>
 #include <cstdio>
 #include <cmath>
 #include <ctime>
 #include <vector>
+
+int miniproj=0;
 
 #define GLOBAL_SIZE 0.5
 #define LEG_XSCALE 2.0
@@ -32,8 +32,6 @@ static int leftFootAngle = 0, rightFootAngle = 0;
 static GLfloat centerX = 0.0, centerY = 0.0, centerZ = 0.0;
 static GLint vangle = 0;
 
-static clock_t lastClock;
-
 GLUquadricObj *quadratic;
 
 void init(void) {
@@ -45,22 +43,6 @@ void init(void) {
     gluQuadricNormals(quadratic, GLU_SMOOTH);
     gluQuadricTexture(quadratic, GL_TRUE);
 
-    lastClock = clock();
-
-}
-
-void calFPS(void) {
-    static int recFlame = 0;
-    int i=55555555;
-    recFlame ++;
-    if (recFlame < 50) return;
-
-    clock_t cur = clock();
-    double timegap = (double)(cur - lastClock) / CLOCKS_PER_SEC;
-    printf("FPS=%lf\n", 50.0 / timegap);
-    for(;i>0;i--);
-    recFlame = 0;
-    lastClock = cur;
 }
 
 void drawSolidCircle(GLfloat x, GLfloat y, GLfloat radius) {
@@ -74,11 +56,62 @@ void drawSolidCircle(GLfloat x, GLfloat y, GLfloat radius) {
     glEnd();
 }
 
-void display(void) {
-    calFPS();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void drawStrokeText(GLfloat x, GLfloat y, GLfloat sx, GLfloat sy, char str[], GLfloat width, GLubyte R, GLubyte G, GLubyte B)
+{
+	int i;
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(0, 1000, 0, 600);
+	if (miniproj==0)
+	{
+		glColor3f(0, 0, 0);
+		glBegin(GL_POLYGON);
+		glVertex2f(0, 0);
+		glVertex2f(1000, 0);
+		glVertex2f(1000, 600);
+		glVertex2f(0, 600);
+		glEnd();
+	}
+	glDepthFunc(GL_ALWAYS);
+	glColor3ub(R, G, B);
+	glLineWidth(width);
+	glPushMatrix();
+	glTranslatef(x, y, 0);
+	glScalef(sx, sy, 0);
+	for (i = 0; str[i] != '\0'; ++i)
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, str[i]);
+	glPopMatrix();
+	glDepthFunc(GL_LESS);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 
+}
+
+void displayInfo()
+{
+
+	//drawStrokeText(x, y, sx, sy, str[], width, R, G, B);
+	drawStrokeText(130, 530, 0.35, 0.4, "Cambridge Institute of Technology", 4, 0, 0, 255);
+	drawStrokeText(170, 490, 0.2, 0.2, "Department of Computer Science & Engineering", 2.5, 0, 0, 255);
+	drawStrokeText(190, 370, 0.6, 0.6, "3D Walking Man", 20, 255, 0, 0);
+	drawStrokeText(400, 310, 0.2, 0.2, "VI Semester", 2.2, 0, 255, 0);
+	drawStrokeText(370, 280, 0.2, 0.2, "Graphics Package", 2.2, 0, 255, 0);
+	drawStrokeText(400, 230, 0.2, 0.2, "Submitted By", 2.2, 0, 255, 255);
+	drawStrokeText(230, 190, 0.2, 0.2, "1CD14CS091", 2.5, 255, 255, 0);
+	drawStrokeText(600, 190, 0.2, 0.2, "Manjunath.S.S", 2.5, 255, 255, 0);
+	drawStrokeText(300, 130, 0.2, 0.2, "for the academic year 2017", 2.2, 255, 0, 255);
+
+
+	drawStrokeText(360, 20, 0.15, 0.15, "(Press right click to explore)", 2, 255, 0, 0);
+}
+
+void miniproj1()
+{
     glColor3f(0.8, 0.8, 0.8);
     // Ground
     int minx = (int) centerX - 30;
@@ -102,7 +135,7 @@ void display(void) {
     glPushMatrix();
         glTranslatef(centerX, centerY, centerZ);
         glRotatef(vangle, 0.0, 1.0, 0.0);
-        
+
         glColor3f(0.5, 0.5, 0.5);
         // Left LegAngle
         glPushMatrix();
@@ -140,7 +173,7 @@ void display(void) {
                 glutSolidCube(GLOBAL_SIZE);
             glPopMatrix();
         glPopMatrix();
-        
+
         // Right LegAngle
         glPushMatrix();
             //glTranslatef(- GLOBAL_SIZE * LEG_XSCALE / 2, 0.0, 0.0);
@@ -249,7 +282,22 @@ void display(void) {
             glPopMatrix();
         glPopMatrix();
     glPopMatrix();
-    
+}
+
+
+void display(void) {
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    if(miniproj==0)
+    {
+        displayInfo();
+    }
+    else if(miniproj==1)
+    {
+        miniproj1();
+    }
+
     glFlush();
     glutSwapBuffers();
 }
@@ -318,7 +366,7 @@ void calculateData(int id) {
 
         if (leftHigherLegAngle == -120) {
             dir1 = true;
-            
+
         }
 
         rightFootAngle = -rightHigherLegAngle - 90;
@@ -356,12 +404,12 @@ void calculateData(int id) {
     gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
 
     glutPostRedisplay();
-    glutTimerFunc(1, calculateData, 0);
+    glutTimerFunc(5, calculateData, 0);
 }
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
