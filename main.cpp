@@ -4,7 +4,7 @@
 #include <ctime>
 #include <vector>
 
-int miniproj=0;
+int miniproj=0, pntrlctn=0;
 
 #define GLOBAL_SIZE 0.5
 #define LEG_XSCALE 2.0
@@ -112,6 +112,7 @@ void displayInfo()
 
 void miniproj1()
 {
+		glClearColor(0.0,0.0,0.0,1.0);
     glColor3f(0.8, 0.8, 0.8);
     // Ground
     int minx = (int) centerX - 30;
@@ -284,9 +285,31 @@ void miniproj1()
     glPopMatrix();
 }
 
+void PntrLctn()
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.502, 0.502, 0.000,1.0);
+	glColor3f(1.0,0.0,0.0);
+	gluOrtho2D(0.0,1920.0,0.0,1080.0);
+	glColor4f(1,0,0,0.5);
+	glBegin(GL_POLYGON);
+		glVertex2f(0,0);
+		glVertex2f(0,100);
+		glVertex2f(100,100);
+		glVertex2f(100,0);
+	glEnd();
+	glBegin(GL_POINTS);
+		glVertex2f(100.0,200.0);
+        glVertex2f(0,0);
+        glVertex2f(1900,1000);
+	glEnd();
+    glBegin(GL_LINES);
+        glVertex2f(0,0);
+        glVertex2f(1920,1080);
+    glEnd();
+}
 
 void display(void) {
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if(miniproj==0)
@@ -297,6 +320,14 @@ void display(void) {
     {
         miniproj1();
     }
+		else if(miniproj==3)
+		{
+				//miniproj3();
+		}
+		else if(miniproj==2)
+		{
+				PntrLctn();
+		}
 
     glFlush();
     glutSwapBuffers();
@@ -411,45 +442,57 @@ void calculateData(int id) {
 }
 
 void printthis(int x,int y){printf("x=%d-y=%d\n",x,y);}
+
 void myMouse(int button,int state,int x,int y)
 {
-
+		if(pntrlctn!=0)
       if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
         {printthis(x,y);}
 }
+
 void top_menu(int id)
 {
-	printf("%d",miniproj);
     switch(id)
     {
-      case 0:exit(0);break;
-			case 1:miniproj=1;printf("%d",miniproj); break;
-			case 2:miniproj=0;break;
-			case 3:miniproj=3;break;
+      case 0: exit(0);
+			case 1: miniproj=1; break;
+			case 2: miniproj=0; break;
+			case 3: miniproj=3; break;
     }
     glutPostRedisplay();
 }
-void my_options(int id)
+
+void sub_options(int id)
 {
-        switch(id)
-        {
-        case 2:
-                break;
-        case 3:
-        break;
-        }
-        glutPostRedisplay();
+    switch(id)
+    {
+			case 20:pntrlctn=0;
+              break;
+    	case 21:miniproj=2;
+              break;
+      case 22:pntrlctn=22;
+      				break;
+			case 23:pntrlctn=23;
+							break;
+			case 24:pntrlctn=24;
+							break;
+    }
+    glutPostRedisplay();
 }
+
 void mymenu()
 {
-				int sub_menu=glutCreateMenu(my_options);
-        glutAddMenuEntry("Increase Square Size",4);
-        glutAddMenuEntry("Decrease Square Size",5);
+				int sub_menu=glutCreateMenu(sub_options);
+        glutAddMenuEntry("Top-Left",21);
+        glutAddMenuEntry("Top-Right",22);
+				glutAddMenuEntry("Bottom-Left",23);
+				glutAddMenuEntry("Bottom-Right",24);
+				glutAddMenuEntry("Disable",20);
 
 				glutCreateMenu(top_menu);
 				glutAddMenuEntry("Welcome Page",2);
         glutAddMenuEntry("3D Walking Man",1);
-				glutAddSubMenu("Cursor co-ordinates",sub_menu);
+				glutAddSubMenu("Pointer Scale",sub_menu);
 				glutAddMenuEntry("Color Palette",3);
 				glutAddMenuEntry("Quit",0);
         glutAttachMenu(GLUT_RIGHT_BUTTON);
@@ -457,12 +500,12 @@ void mymenu()
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-    glutInitWindowSize(500, 500);
-    glutInitWindowPosition(100, 100);
+    glutInitWindowSize(800, 800);
+    glutInitWindowPosition(0, 0);
     glutCreateWindow(argv[0]);
     init();
     mymenu();
-    //glutMouseFunc(myMouse);
+    glutMouseFunc(myMouse);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
