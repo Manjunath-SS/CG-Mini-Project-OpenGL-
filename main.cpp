@@ -350,63 +350,110 @@ bool dir1 = false;
 static const double legLength = 2 * GLOBAL_SIZE * LEG_XSCALE + GLOBAL_SIZE * FOOT_YSCALE;
 
 void calculateData(int id) {
-    centerY = legLength * sin(-leftHigherLegAngle / 180.0 * PI) - legLength;
-    double mvx = cos(vangle / 180.0 * PI) * 0.035;
-    double mvz = sin(vangle / 180.0 * PI) * 0.035;
-        //printf("X=%lf Y=%lf Z=%lf\n", centerX, centerY, centerZ);
+    if(miniproj==1)
+    {
+        centerY = legLength * sin(-leftHigherLegAngle / 180.0 * PI) - legLength;
+        double mvx = cos(vangle / 180.0 * PI) * 0.035;
+        double mvz = sin(vangle / 180.0 * PI) * 0.035;
+          //printf("X=%lf Y=%lf Z=%lf\n", centerX, centerY, centerZ);
 
-    if (!dir1) {
-        leftHigherLegAngle --;
-        rightHigherLegAngle ++;
-        if (leftHigherLegAngle >= -75) {
-            leftLowerLegAngle += 6;
-            leftFootAngle = 0;
-        }
-        else if (leftHigherLegAngle < -105) leftLowerLegAngle -= 6;
+          if (!dir1) {
+            leftHigherLegAngle --;
+            rightHigherLegAngle ++;
+            if (leftHigherLegAngle >= -75) {
+                leftLowerLegAngle += 6;
+                leftFootAngle = 0;
+              }
+              else if (leftHigherLegAngle < -105) leftLowerLegAngle -= 6;
 
-        if (leftHigherLegAngle == -120) {
-            dir1 = true;
+              if (leftHigherLegAngle == -120) {
+                dir1 = true;
 
-        }
+              }
 
-        rightFootAngle = -rightHigherLegAngle - 90;
+              rightFootAngle = -rightHigherLegAngle - 90;
 
-        leftHigherHandAngle ++;
-        leftLowerHandAngle ++;
-        rightHigherHandAngle --;
-        rightLowerHandAngle --;
+              leftHigherHandAngle ++;
+              leftLowerHandAngle ++;
+              rightHigherHandAngle --;
+              rightLowerHandAngle --;
+            }
+            else {
+              leftHigherLegAngle ++;
+              rightHigherLegAngle --;
+              if (rightHigherLegAngle >= -75) {
+                rightLowerLegAngle += 6;
+                rightFootAngle = 0;
+              }
+              else if (rightHigherLegAngle < -105) rightLowerLegAngle -= 6;
+
+              if (leftHigherLegAngle == -60) dir1 = false;
+
+              leftFootAngle = -leftHigherLegAngle - 90;
+
+              leftHigherHandAngle --;
+              leftLowerHandAngle --;
+              rightHigherHandAngle ++;
+              rightLowerHandAngle ++;
+            }
+
+            centerX -= mvx;
+            lookatx -= mvx;
+            centerZ += mvz;
+            lookatz += mvz;
+            glLoadIdentity();
+      //printf("X=%lf,Z=%lf, lX=%lf,lZ=%lf\n", centerX, centerZ, lookatx, lookatz);
+        gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
+
+        glutPostRedisplay();
     }
-    else {
-        leftHigherLegAngle ++;
-        rightHigherLegAngle --;
-        if (rightHigherLegAngle >= -75) {
-            rightLowerLegAngle += 6;
-            rightFootAngle = 0;
-        }
-        else if (rightHigherLegAngle < -105) rightLowerLegAngle -= 6;
-
-        if (leftHigherLegAngle == -60) dir1 = false;
-
-        leftFootAngle = -leftHigherLegAngle - 90;
-
-        leftHigherHandAngle --;
-        leftLowerHandAngle --;
-        rightHigherHandAngle ++;
-        rightLowerHandAngle ++;
-    }
-
-    centerX -= mvx;
-    lookatx -= mvx;
-    centerZ += mvz;
-    lookatz += mvz;
-    glLoadIdentity();
-    //printf("X=%lf,Z=%lf, lX=%lf,lZ=%lf\n", centerX, centerZ, lookatx, lookatz);
-    gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
-
-    glutPostRedisplay();
-    glutTimerFunc(5, calculateData, 0);
+		glutTimerFunc(10, calculateData, 0);
 }
 
+void printthis(int x,int y){printf("x=%d-y=%d\n",x,y);}
+void myMouse(int button,int state,int x,int y)
+{
+
+      if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
+        {printthis(x,y);}
+}
+void top_menu(int id)
+{
+	printf("%d",miniproj);
+    switch(id)
+    {
+      case 0:exit(0);break;
+			case 1:miniproj=1;printf("%d",miniproj); break;
+			case 2:miniproj=0;break;
+			case 3:miniproj=3;break;
+    }
+    glutPostRedisplay();
+}
+void my_options(int id)
+{
+        switch(id)
+        {
+        case 2:
+                break;
+        case 3:
+        break;
+        }
+        glutPostRedisplay();
+}
+void mymenu()
+{
+				int sub_menu=glutCreateMenu(my_options);
+        glutAddMenuEntry("Increase Square Size",4);
+        glutAddMenuEntry("Decrease Square Size",5);
+
+				glutCreateMenu(top_menu);
+				glutAddMenuEntry("Welcome Page",2);
+        glutAddMenuEntry("3D Walking Man",1);
+				glutAddSubMenu("Cursor co-ordinates",sub_menu);
+				glutAddMenuEntry("Color Palette",3);
+				glutAddMenuEntry("Quit",0);
+        glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
@@ -414,11 +461,13 @@ int main(int argc, char **argv) {
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
     init();
+    mymenu();
+    //glutMouseFunc(myMouse);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glutPassiveMotionFunc(passiveMotionFunc);
-    //glutIdleFunc(idle);
+    //glutFullScreen();
     calculateData(0);
     glutMainLoop();
     return 0;
