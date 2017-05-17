@@ -532,7 +532,7 @@ int main(int argc, char **argv) {
     glutPassiveMotionFunc(passiveMotionFunc);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glutFullScreen();
+    glutFullScreen();
     calculateData(0);
     glutMainLoop();
     return 0;
