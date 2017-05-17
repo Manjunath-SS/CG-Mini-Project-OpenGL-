@@ -97,15 +97,21 @@ void displayInfo()
 {
 
 	//drawStrokeText(x, y, sx, sy, str[], width, R, G, B);
-	drawStrokeText(130, 530, 0.35, 0.4, "Cambridge Institute of Technology", 4, 0, 0, 255);
-	drawStrokeText(170, 490, 0.2, 0.2, "Department of Computer Science & Engineering", 2.5, 0, 0, 255);
-	drawStrokeText(190, 370, 0.6, 0.6, "3D Walking Man", 10, 255, 0, 0);
-	drawStrokeText(400, 310, 0.2, 0.2, "VI Semester", 2.2, 0, 255, 0);
-	drawStrokeText(370, 280, 0.2, 0.2, "Graphics Package", 2.2, 0, 255, 0);
-	drawStrokeText(400, 230, 0.2, 0.2, "Submitted By", 2.2, 0, 255, 255);
-	drawStrokeText(230, 190, 0.2, 0.2, "1CD14CS091", 2.5, 255, 255, 0);
-	drawStrokeText(600, 190, 0.2, 0.2, "Manjunath.S.S", 2.5, 255, 255, 0);
-	drawStrokeText(300, 130, 0.2, 0.2, "for the academic year 2017", 2.2, 255, 0, 255);
+	drawStrokeText(130, 550, 0.35, 0.4, "Cambridge Institute of Technology", 4, 0, 0, 255);
+	drawStrokeText(170, 510, 0.2, 0.2, "Department of Computer Science & Engineering", 2.5, 0, 0, 255);
+	drawStrokeText(10, 430, 0.4, 0.4, "OpenGL Utility Tools And Walking Man", 6, 255, 0, 0);
+	drawStrokeText(400, 380, 0.2, 0.2, "VI Semester", 2.2, 0, 255, 0);
+	drawStrokeText(370, 350, 0.2, 0.2, "Graphics Package", 2.2, 0, 255, 0);
+	drawStrokeText(400, 310, 0.2, 0.2, "Submitted By", 2.2, 0, 255, 255);
+	drawStrokeText(230, 270, 0.2, 0.2, "1CD13CS001", 2.5, 255, 255, 0);
+	drawStrokeText(600, 270, 0.2, 0.2, "Abhishek.M", 2.5, 255, 255, 0);
+    drawStrokeText(230, 230, 0.2, 0.2, "1CD14CS091", 2.5, 255, 255, 0);
+	drawStrokeText(600, 230, 0.2, 0.2, "Manjunath.S.S", 2.5, 255, 255, 0);
+	drawStrokeText(300, 190, 0.2, 0.2, "for the academic year 2017", 2.0, 255, 0, 255);
+
+    drawStrokeText(340, 145, 0.2, 0.2, "Under the Guidance of", 2.2, 0, 255, 255);
+	drawStrokeText(320, 100, 0.2, 0.2, "Prof. Sonia Maria D'Souza", 2.5, 255, 255, 0);
+	drawStrokeText(410, 60, 0.2, 0.2, "Prof. Ganesh", 2.5, 255, 255, 0);
 
 
 	drawStrokeText(360, 20, 0.15, 0.15, "(Press right click to explore)", 2, 255, 0, 0);
@@ -391,6 +397,9 @@ void keyboard(unsigned char key, int x, int y) {
         case 's':
             vangle = (vangle + 180) % 360;
             break;
+        case '2':
+            system("/media/sf_M_DRIVE/CG_MiniProject/Mouse/a.out");
+            exit(0);
         default:
             break;
     }
