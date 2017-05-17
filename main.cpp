@@ -89,7 +89,6 @@ void drawStrokeText(GLfloat x, GLfloat y, GLfloat sx, GLfloat sy, char str[], GL
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-
 }
 
 void displayInfo()
@@ -98,7 +97,7 @@ void displayInfo()
 	//drawStrokeText(x, y, sx, sy, str[], width, R, G, B);
 	drawStrokeText(130, 530, 0.35, 0.4, "Cambridge Institute of Technology", 4, 0, 0, 255);
 	drawStrokeText(170, 490, 0.2, 0.2, "Department of Computer Science & Engineering", 2.5, 0, 0, 255);
-	drawStrokeText(190, 370, 0.6, 0.6, "3D Walking Man", 20, 255, 0, 0);
+	drawStrokeText(190, 370, 0.6, 0.6, "3D Walking Man", 10, 255, 0, 0);
 	drawStrokeText(400, 310, 0.2, 0.2, "VI Semester", 2.2, 0, 255, 0);
 	drawStrokeText(370, 280, 0.2, 0.2, "Graphics Package", 2.2, 0, 255, 0);
 	drawStrokeText(400, 230, 0.2, 0.2, "Submitted By", 2.2, 0, 255, 255);
@@ -287,16 +286,30 @@ void miniproj1()
 
 void PntrLctn()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.502, 0.502, 0.000,1.0);
-	glColor3f(1.0,0.0,0.0);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_DEPTH);
+	glEnable(GL_BLEND);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//displayInfo();
+	//glClearColor(0.502, 0.502, 0.000,1.0);
 	gluOrtho2D(0.0,1920.0,0.0,1080.0);
-	glColor4f(1,0,0,0.5);
+
+	glColor4f(1.0,0.0,0.0,1.0);
 	glBegin(GL_POLYGON);
 		glVertex2f(0,0);
-		glVertex2f(0,100);
-		glVertex2f(100,100);
-		glVertex2f(100,0);
+		glVertex2f(0,500);
+		glVertex2f(500,500);
+		glVertex2f(500,0);
+	glEnd();
+	glColor4f(1.0,1.0,0.0,1.0);
+	glBegin(GL_POLYGON);
+		glVertex2f(0,0);
+		glVertex2f(0,50);
+		glVertex2f(50,50);
+		glVertex2f(50,0);
 	glEnd();
 	glBegin(GL_POINTS);
 		glVertex2f(100.0,200.0);
@@ -314,7 +327,8 @@ void display(void) {
 
     if(miniproj==0)
     {
-        displayInfo();
+				//init();
+				displayInfo();
     }
     else if(miniproj==1)
     {
@@ -335,16 +349,17 @@ void display(void) {
 
 static double lookatx = 3.5, lookatz = 3.5, lookaty = 0;
 static int scrw, scrh;
+
 void reshape(int w, int h) {
-    scrw = w;
-    scrh = h;
-    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, (GLfloat) w / (GLfloat) h, 1.0, 1000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
+			scrw = w;
+	    scrh = h;
+	    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+	    glMatrixMode(GL_PROJECTION);
+	    glLoadIdentity();
+	    gluPerspective(60.0, (GLfloat) w / (GLfloat) h, 1.0, 1000.0);
+	    glMatrixMode(GL_MODELVIEW);
+	    glLoadIdentity();
+	    gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
 }
 
 void passiveMotionFunc(int x, int y) {
@@ -445,7 +460,7 @@ void printthis(int x,int y){printf("x=%d-y=%d\n",x,y);}
 
 void myMouse(int button,int state,int x,int y)
 {
-		if(pntrlctn!=0)
+		//if(pntrlctn!=0)
       if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
         {printthis(x,y);}
 }
@@ -510,6 +525,8 @@ int main(int argc, char **argv) {
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glutPassiveMotionFunc(passiveMotionFunc);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glutFullScreen();
     calculateData(0);
     glutMainLoop();
