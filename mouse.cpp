@@ -3,45 +3,17 @@
 #include<string.h>
 #include<stdlib.h>
 
-int i;
-char buffer[64];
-void printthis(int x,int y){printf("x=%d-y=%d\n",x,glutGet(GLUT_WINDOW_HEIGHT)-y);}
-void top_menu(int id)
+int xval,yval;
+char char_xval[32], char_yval[32];
+
+void printthis(int x,int y)
 {
-        switch(id)
-        {
-        case 1:exit(0);break;
-        }
-        glutPostRedisplay();
+    printf("x=%d-y=%d\n",x,glutGet(GLUT_WINDOW_HEIGHT)-y);
 }
 
 char *itoa(long i, char* s, int dummy_radix) {
     sprintf(s, "%ld", i);
     return s;
-}
-
-void myMouse(int button,int state,int x,int y)
-    {	
-	
-        if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
-            {printthis(10000,9999);i=x;}
-        if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
-            exit(0);
-    }
-
-void passiveMotionFunc(int x, int y) {
-	glColor3f(1,1,0);
-
-	glClear(GL_COLOR_BUFFER_BIT);
-	glutPostRedisplay();
-	glBegin(GL_POLYGON);
-		glVertex2f(0,0);
-		glVertex2f(0,glutGet(GLUT_WINDOW_HEIGHT)-y);
-		glVertex2f(x,glutGet(GLUT_WINDOW_HEIGHT)-y);
-		glVertex2f(x,0);		
-	glEnd();
-	glFlush();
-    	printthis(x,y);
 }
 
 void output(int x, int y, float r, float g, float b, int font, char *string)
@@ -58,26 +30,58 @@ void output(int x, int y, float r, float g, float b, int font, char *string)
 
 void display()
 {
-	glColor4f(1,0,0,0.5);
+    int x,y;
+    char charx[32],chary[32];
+    glClear(GL_COLOR_BUFFER_BIT);
+  	glColor4f(1,0,0,0.6);
 	glBegin(GL_POLYGON);
 		glVertex2f(0,0);
-		glVertex2f(0,100);
-		glVertex2f(100,100);
+		glVertex2f(0,1080);
+		glVertex2f(100,1080);
 		glVertex2f(100,0);		
-	glEnd();
-    itoa(i,buffer,10);
-	glBegin(GL_POINTS);
-		glVertex2f(100.0,200.0);
+
         glVertex2f(0,0);
-        glVertex2f(1900,1000);
+		glVertex2f(0,100);
+		glVertex2f(1920,100);
+		glVertex2f(1920,0);
 	glEnd();
-    glBegin(GL_LINES);
-        glVertex2f(0,0);
-        glVertex2f(1920,1080);
-    glEnd();
-    itoa(i,buffer,64);
-    output(100,100,1.0,1.0,0.0,0,buffer);
+
+    glColor3f(1.0,1.0,1.0);
+    for(y=100;y<=glutGet(GLUT_WINDOW_HEIGHT);y+=20)
+    {
+        glBegin(GL_LINES);
+            glVertex2f(0,y);
+            glVertex2f(50,y);
+        glEnd();
+        if(y%100==0)
+        {
+            itoa(y,chary,32);
+            output(50,y-6,1.0,1.0,0.0,0,chary);
+        }
+    }
+
+    output(7,60,1.0,1.0,0.0,0,"x =");
+    output(7,30,1.0,1.0,0.0,0,"y =");
+    output(44,60,1.0,1.0,0.0,0,char_xval);
+    output(44,30,1.0,1.0,0.0,0,char_yval);
 	glFlush();
+}
+
+void myMouse(int button,int state,int x,int y)
+{	
+    if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
+        printthis(x,y);
+    if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
+        exit(0);
+}
+
+void passiveMotionFunc(int x, int y) 
+{
+    xval=x;
+    yval=glutGet(GLUT_WINDOW_HEIGHT)-y;
+    itoa(xval,char_xval,32);
+    itoa(yval,char_yval,32);
+	glutPostRedisplay();
 }
 
 
@@ -92,10 +96,8 @@ void reshape(int w, int h) {
 
 void myinit()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(0.502, 0.502, 0.000,1.0);
+	glClearColor(0.0, 1.0, 1.0,1.0);
 	glColor3f(1.0,0.0,0.0);
-	glPointSize(5.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0.0,1920.0,0.0,1080.0);
@@ -111,7 +113,7 @@ int main(int argc, char** argv)
 	//glutReshapeFunc(reshape);
 	glutFullScreen();
 	glutPassiveMotionFunc(passiveMotionFunc);
-    	glutMouseFunc(myMouse);
+    glutMouseFunc(myMouse);
 	glutDisplayFunc(display);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
