@@ -1,10 +1,12 @@
+#include <stdio.h>
+#include <math.h>
 #include <GL/glut.h>
-#include <cstdio>
-#include <cmath>
-#include <ctime>
 #include <vector>
 
 int miniproj=0, pntrlctn=0;
+int coord;
+char cor[33];
+
 
 #define GLOBAL_SIZE 0.5
 #define LEG_XSCALE 2.0
@@ -287,8 +289,7 @@ void miniproj1()
 void PntrLctn()
 {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glDisable(GL_DEPTH);
-	glEnable(GL_BLEND);
+	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -297,6 +298,8 @@ void PntrLctn()
 	//glClearColor(0.502, 0.502, 0.000,1.0);
 	gluOrtho2D(0.0,1920.0,0.0,1080.0);
 
+
+	drawStrokeText(400, 310, 0.2, 0.2, cor, 2.2, 0, 255, 0);
 	glColor4f(1.0,0.0,0.0,1.0);
 	glBegin(GL_POLYGON);
 		glVertex2f(0,0);
@@ -370,6 +373,7 @@ void passiveMotionFunc(int x, int y) {
     if (tmpy >= -GLOBAL_SIZE * LEG_XSCALE * 2)
         lookaty = tmpy;
     glLoadIdentity();
+    coord=x;
 
     gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
 }
@@ -461,6 +465,7 @@ void printthis(int x,int y){printf("x=%d-y=%d\n",x,y);}
 void myMouse(int button,int state,int x,int y)
 {
 		//if(pntrlctn!=0)
+
       if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
         {printthis(x,y);}
 }
