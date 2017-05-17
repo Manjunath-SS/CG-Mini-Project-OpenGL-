@@ -60,6 +60,19 @@ void display()
         }
     }
 
+    for(x=100;x<=glutGet(GLUT_WINDOW_WIDTH);x+=20)
+    {
+        glBegin(GL_LINES);
+            glVertex2f(x,0);
+            glVertex2f(x,50);
+        glEnd();
+        if(x%200==0)
+        {
+            itoa(x,charx,32);
+            output(x-20,60,1.0,1.0,0.0,0,charx);
+        }
+    }
+
     output(7,60,1.0,1.0,0.0,0,"x =");
     output(7,30,1.0,1.0,0.0,0,"y =");
     output(44,60,1.0,1.0,0.0,0,char_xval);
