@@ -29,14 +29,26 @@ void output(int x, int y, float r, float g, float b, int font, char *string)
 
 void cursorfunc()
 {
-    int x,y;
+    int x,y,minx,maxx,ymin,ymax;
+    if(xval>100)
+    {
+        minx=0;
+        maxx=100;
+       // ymin=;
+        //ymax=;
+    }
+    else if(xval<100)
+    {
+        minx=glutGet(GLUT_WINDOW_WIDTH)-100;
+        maxx=glutGet(GLUT_WINDOW_WIDTH);
+    }
     char charx[32],chary[32];
     glColor4f(1,0,0,0.6);
 	glBegin(GL_POLYGON);
-		glVertex2f(0,0);
-		glVertex2f(0,1080);
-		glVertex2f(100,1080);
-		glVertex2f(100,0);		
+		glVertex2f(minx,0);
+		glVertex2f(minx,1080);
+		glVertex2f(maxx,1080);
+		glVertex2f(maxx,0);		
 
         glVertex2f(0,0);
 		glVertex2f(0,100);
@@ -53,7 +65,7 @@ void cursorfunc()
         glEnd();
         if(y%100==0)
         {
-            itoa(y,chary,32);
+            itoa(y,chary,10);
             output(50,y-6,1.0,1.0,0.0,0,chary);
         }
     }
@@ -66,7 +78,7 @@ void cursorfunc()
         glEnd();
         if(x%200==0)
         {
-            itoa(x,charx,32);
+            itoa(x,charx,10);
             output(x-20,60,1.0,1.0,0.0,0,charx);
         }
     }
@@ -110,8 +122,8 @@ void passiveMotionFunc(int x, int y)
 {
     xval=x;
     yval=glutGet(GLUT_WINDOW_HEIGHT)-y;
-    itoa(xval,char_xval,32);
-    itoa(yval,char_yval,32);
+    itoa(xval,char_xval,10);
+    itoa(yval,char_yval,10);
 	glutPostRedisplay();
 }
 
