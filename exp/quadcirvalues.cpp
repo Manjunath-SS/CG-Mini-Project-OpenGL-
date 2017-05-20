@@ -15,7 +15,7 @@ int main()
     for(i=960;i<1920;i++)
         for(j=540;j<1080;j++)
     {
-        if(i>=x && j>=y && i-960>=j-540)
+        if(i>=x && j>=y && i-960<j-540)
         {
             ra=(i-x)*(i-x)+(j-y)*(j-y);
             ra=sqrt(ra);
