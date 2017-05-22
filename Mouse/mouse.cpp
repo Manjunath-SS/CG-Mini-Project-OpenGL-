@@ -48,7 +48,7 @@ void cursorfunc()
 		glVertex2f(minx,0);
 		glVertex2f(minx,1080);
 		glVertex2f(maxx,1080);
-		glVertex2f(maxx,0);		
+		glVertex2f(maxx,0);
 
         glVertex2f(0,0);
 		glVertex2f(0,100);
@@ -97,7 +97,7 @@ void display()
 		glVertex2f(0,0);
 		glVertex2f(0,400);
 		glVertex2f(400,600);
-		glVertex2f(600,0);		
+		glVertex2f(600,0);
          glColor3f(0.0,1.0,0.0);
         glVertex2f(550,800);
 		glVertex2f(550,900);
@@ -105,20 +105,28 @@ void display()
 		glVertex2f(1000,550);
 	glEnd();
 
+  glColor4f(0.0,0.0,0.0,1.0);
+  glBegin(GL_LINES);
+    glVertex2f(xval,0);
+    glVertex2f(xval,100);
+
+    glVertex2f(0,yval);
+    glVertex2f(100,yval);
+  glEnd();
 
   	cursorfunc();
 	glFlush();
 }
 
 void myMouse(int button,int state,int x,int y)
-{	
+{
     if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
         printthis(x,y);
     if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
         exit(0);
 }
 
-void passiveMotionFunc(int x, int y) 
+void passiveMotionFunc(int x, int y)
 {
     xval=x;
     yval=glutGet(GLUT_WINDOW_HEIGHT)-y;
@@ -127,7 +135,7 @@ void passiveMotionFunc(int x, int y)
 	glutPostRedisplay();
 }
 
-void myKeyboard(unsigned char key, int x, int y) 
+void myKeyboard(unsigned char key, int x, int y)
 {
     switch (key) {
         case '1': system("/media/sf_M_DRIVE/CG_MiniProject/a.out"); exit(0);
@@ -146,7 +154,7 @@ void reshape(int w, int h) {
     glViewport(0, 0, w, h);
    	passiveMotionFunc(w-glutGet(GLUT_WINDOW_WIDTH),h-glutGet(GLUT_WINDOW_HEIGHT));
     glutPostRedisplay();
-    
+
 }*/
 
 
