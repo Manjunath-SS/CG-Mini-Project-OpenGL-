@@ -198,7 +198,7 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-  mydrawpalette(0,oct0_0,sizeof(oct0_0));
+  	mydrawpalette(0,oct0_0,sizeof(oct0_0));
 	mydrawpalette(1,oct0_1,sizeof(oct0_1));
 	mydrawpalette(2,oct0_2,sizeof(oct0_2));
 	mydrawpalette(3,oct0_3,sizeof(oct0_3));
@@ -396,7 +396,7 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc,argv);
 	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGBA);
-	//glutInitWindowSize(500,500);
+	glutInitWindowSize(500,500);
 	glutInitWindowPosition(0,0);
 	glutCreateWindow("Color Palette");
 	//glutFullScreen();
