@@ -302,7 +302,7 @@ void myinit(void)
         glClearColor(0.0, 1.0, 1.0,1.0);
     	glMatrixMode(GL_PROJECTION);
     	glLoadIdentity();
-        gluOrtho2D(0,glutGet(GLUT_WINDOW_WIDTH),0,glutGet(GLUT_WINDOW_HEIGHT));
+        gluOrtho2D(0,glutGet(GLUT_SCREEN_WIDTH),0,glutGet(GLUT_SCREEN_HEIGHT));
     }
 }
 
@@ -968,7 +968,6 @@ int main(int argc, char **argv)
         miniproj=atoi(argv[1]);
     glutInit(&argc, argv);
     glutInitWindowPosition(0,0);
-    glutInitWindowSize(glutGet(GLUT_SCREEN_WIDTH),glutGet(GLUT_SCREEN_HEIGHT));
     glutCreateWindow("OpenGL Utility Tools and Walking Man");
     myinit();
     glutDisplayFunc(display);

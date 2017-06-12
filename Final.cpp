@@ -2,9 +2,9 @@
 #include <cstdio>
 #include <cmath>
 #include <vector>
-#include<string.h>
-#include<stdlib.h>
-#include"var.c"
+#include <string.h>
+#include <stdlib.h>
+#include "mypixels"
 
 #define GLOBAL_SIZE 0.5
 #define LEG_XSCALE 2.0
@@ -28,19 +28,24 @@ static int leftLowerLegAngle = 0, rightLowerLegAngle = 0;
 static int leftHigherHandAngle = -120, rightHigherHandAngle = -60;
 static int leftLowerHandAngle = -60, rightLowerHandAngle = 0;
 static int leftFootAngle = 0, rightFootAngle = 0;
-
 static GLfloat centerX = 0.0, centerY = 0.0, centerZ = 0.0;
 static GLint vangle = 0;
-
-int miniproj=0;
-int xval,yval;
-char char_xval[32], char_yval[32];
-
+static double lookatx = 3.5, lookatz = 3.5, lookaty = 0;
+static int scrw, scrh;
 GLUquadricObj *quadratic;
+bool dir1 = false;
+static const double legLength = 2 * GLOBAL_SIZE * LEG_XSCALE + GLOBAL_SIZE * FOOT_YSCALE;
 
-
-int sel[][2]={{100,125},{125,150},{150,175},{175,200},{200,225},{225,250},{250,275},{275,300},{300,325},{325,350},{350,375},{375,400},{400,425},{425,450},{450,475},{475,500}};
-
+float current[]={0.0,0.0,0.0}; //Used to store current color
+float previous[]={0.0,0.0,0.0}; //Used to store previous color
+int newcodeslno,oldcodeslno; //Used to store corresponding color's array indices
+int miniproj=-1;
+int xval,yval,scalelinex=100,scaleliney=100;
+char char_xval[32], char_yval[32];
+//Specifying boundaries for colors in color palette
+int bounds[][2]={{100,125},{125,150},{150,175},{175,200},{200,225},{225,250},{250,275},{275,300},{300,325},{325,350},{350,375},{375,400},{400,425},{425,450},{450,475},{475,500}};
+char code[][50]={"{0.804, 0.361, 0.361}", "{0.941, 0.502, 0.502}", "{0.980, 0.502, 0.447}", "{0.914, 0.588, 0.478}", "{1.000, 0.627, 0.478}", "{0.863, 0.078, 0.235}", "{1.000, 0.000, 0.000}", "{0.698, 0.133, 0.133}", "{0.545, 0.000, 0.000}", "{1.000, 0.753, 0.796}", "{1.000, 0.714, 0.757}", "{1.000, 0.412, 0.706}", "{1.000, 0.078, 0.576}", "{0.780, 0.082, 0.522}", "{0.859, 0.439, 0.576}", "{1.000, 0.627, 0.478}", "{1.000, 0.498, 0.314}", "{1.000, 0.388, 0.278}", "{1.000, 0.271, 0.000}", "{1.000, 0.549, 0.000}", "{1.000, 0.647, 0.000}", "{1.000, 0.843, 0.000}", "{1.000, 1.000, 0.000}", "{1.000, 1.000, 0.878}", "{1.000, 0.980, 0.804}", "{0.980, 0.980, 0.824}", "{1.000, 0.937, 0.835}", "{1.000, 0.894, 0.710}", "{1.000, 0.855, 0.725}", "{0.933, 0.910, 0.667}", "{0.941, 0.902, 0.549}", "{0.741, 0.718, 0.420}", "{0.902, 0.902, 0.980}", "{0.847, 0.749, 0.847}", "{0.867, 0.627, 0.867}", "{0.933, 0.510, 0.933}", "{0.855, 0.439, 0.839}", "{1.000, 0.000, 1.000}", "{1.000, 0.000, 1.000}", "{0.729, 0.333, 0.827}", "{0.576, 0.439, 0.859}", "{0.541, 0.169, 0.886}", "{0.580, 0.000, 0.827}", "{0.600, 0.196, 0.800}", "{0.545, 0.000, 0.545}", "{0.502, 0.000, 0.502}", "{0.294, 0.000, 0.510}", "{0.416, 0.353, 0.804}", "{0.282, 0.239, 0.545}", "{0.678, 1.000, 0.184}", "{0.498, 1.000, 0.000}", "{0.486, 0.988, 0.000}", "{0.000, 1.000, 0.000}", "{0.196, 0.804, 0.196}", "{0.596, 0.984, 0.596}", "{0.565, 0.933, 0.565}", "{0.000, 0.980, 0.604}", "{0.000, 1.000, 0.498}", "{0.235, 0.702, 0.443}", "{0.180, 0.545, 0.341}", "{0.133, 0.545, 0.133}", "{0.000, 0.502, 0.000}", "{0.000, 0.392, 0.000}", "{0.604, 0.804, 0.196}", "{0.420, 0.557, 0.137}", "{0.502, 0.502, 0.000}", "{0.333, 0.420, 0.184}", "{0.400, 0.804, 0.667}", "{0.561, 0.737, 0.561}", "{0.125, 0.698, 0.667}", "{0.000, 0.545, 0.545}", "{0.000, 0.502, 0.502}", "{0.000, 1.000, 1.000}", "{0.878, 1.000, 1.000}", "{0.686, 0.933, 0.933}", "{0.498, 1.000, 0.831}", "{0.251, 0.878, 0.816}", "{0.282, 0.820, 0.800}", "{0.000, 0.808, 0.820}", "{0.373, 0.620, 0.627}", "{0.275, 0.510, 0.706}", "{0.690, 0.769, 0.871}", "{0.690, 0.878, 0.902}", "{0.678, 0.847, 0.902}", "{0.529, 0.808, 0.922}", "{0.529, 0.808, 0.980}", "{0.000, 0.749, 1.000}", "{0.118, 0.565, 1.000}", "{0.392, 0.584, 0.929}", "{0.482, 0.408, 0.933}", "{0.255, 0.412, 0.882}", "{0.000, 0.000, 1.000}", "{0.000, 0.000, 0.804}", "{0.000, 0.000, 0.545}", "{0.000, 0.000, 0.502}", "{0.098, 0.098, 0.439}", "{1.000, 0.973, 0.863}", "{1.000, 0.922, 0.804}", "{1.000, 0.894, 0.769}", "{1.000, 0.871, 0.678}", "{0.961, 0.871, 0.702}", "{0.871, 0.722, 0.529}", "{0.824, 0.706, 0.549}", "{0.737, 0.561, 0.561}", "{0.957, 0.643, 0.376}", "{0.855, 0.647, 0.125}", "{0.722, 0.525, 0.043}", "{0.804, 0.522, 0.247}", "{0.824, 0.412, 0.118}", "{0.545, 0.271, 0.075}", "{0.627, 0.322, 0.176}", "{0.647, 0.165, 0.165}", "{0.502, 0.000, 0.000}", "{1.000, 1.000, 1.000}", "{0.941, 1.000, 0.941}", "{0.961, 1.000, 0.980}", "{1.000, 0.961, 0.933}", "{0.961, 0.961, 0.863}", "{0.992, 0.961, 0.902}", "{1.000, 0.980, 0.941}", "{1.000, 1.000, 0.941}", "{0.980, 0.922, 0.843}", "{0.980, 0.941, 0.902}", "{1.000, 0.941, 0.961}", "{1.000, 0.894, 0.882}", "{0.863, 0.863, 0.863}", "{0.827, 0.827, 0.827}", "{0.753, 0.753, 0.753}", "{0.663, 0.663, 0.663}", "{0.502, 0.502, 0.502}", "{0.412, 0.412, 0.412}", "{0.467, 0.533, 0.600}", "{0.439, 0.502, 0.565}", "{0.184, 0.310, 0.310}", "{0.000, 0.000, 0.000}"};
+float oct_clr[][3]={{0.804, 0.361, 0.361}, {0.941, 0.502, 0.502}, {0.980, 0.502, 0.447}, {0.914, 0.588, 0.478}, {1.000, 0.627, 0.478}, {0.863, 0.078, 0.235}, {1.000, 0.000, 0.000}, {0.698, 0.133, 0.133}, {0.545, 0.000, 0.000}, {1.000, 0.753, 0.796}, {1.000, 0.714, 0.757}, {1.000, 0.412, 0.706}, {1.000, 0.078, 0.576}, {0.780, 0.082, 0.522}, {0.859, 0.439, 0.576}, {1.000, 0.627, 0.478}, {1.000, 0.498, 0.314}, {1.000, 0.388, 0.278}, {1.000, 0.271, 0.000}, {1.000, 0.549, 0.000}, {1.000, 0.647, 0.000}, {1.000, 0.843, 0.000}, {1.000, 1.000, 0.000}, {1.000, 1.000, 0.878}, {1.000, 0.980, 0.804}, {0.980, 0.980, 0.824}, {1.000, 0.937, 0.835}, {1.000, 0.894, 0.710}, {1.000, 0.855, 0.725}, {0.933, 0.910, 0.667}, {0.941, 0.902, 0.549}, {0.741, 0.718, 0.420}, {0.902, 0.902, 0.980}, {0.847, 0.749, 0.847}, {0.867, 0.627, 0.867}, {0.933, 0.510, 0.933}, {0.855, 0.439, 0.839}, {1.000, 0.000, 1.000}, {1.000, 0.000, 1.000}, {0.729, 0.333, 0.827}, {0.576, 0.439, 0.859}, {0.541, 0.169, 0.886}, {0.580, 0.000, 0.827}, {0.600, 0.196, 0.800}, {0.545, 0.000, 0.545}, {0.502, 0.000, 0.502}, {0.294, 0.000, 0.510}, {0.416, 0.353, 0.804}, {0.282, 0.239, 0.545}, {0.678, 1.000, 0.184}, {0.498, 1.000, 0.000}, {0.486, 0.988, 0.000}, {0.000, 1.000, 0.000}, {0.196, 0.804, 0.196}, {0.596, 0.984, 0.596}, {0.565, 0.933, 0.565}, {0.000, 0.980, 0.604}, {0.000, 1.000, 0.498}, {0.235, 0.702, 0.443}, {0.180, 0.545, 0.341}, {0.133, 0.545, 0.133}, {0.000, 0.502, 0.000}, {0.000, 0.392, 0.000}, {0.604, 0.804, 0.196}, {0.420, 0.557, 0.137}, {0.502, 0.502, 0.000}, {0.333, 0.420, 0.184}, {0.400, 0.804, 0.667}, {0.561, 0.737, 0.561}, {0.125, 0.698, 0.667}, {0.000, 0.545, 0.545}, {0.000, 0.502, 0.502}, {0.000, 1.000, 1.000}, {0.878, 1.000, 1.000}, {0.686, 0.933, 0.933}, {0.498, 1.000, 0.831}, {0.251, 0.878, 0.816}, {0.282, 0.820, 0.800}, {0.000, 0.808, 0.820}, {0.373, 0.620, 0.627}, {0.275, 0.510, 0.706}, {0.690, 0.769, 0.871}, {0.690, 0.878, 0.902}, {0.678, 0.847, 0.902}, {0.529, 0.808, 0.922}, {0.529, 0.808, 0.980}, {0.000, 0.749, 1.000}, {0.118, 0.565, 1.000}, {0.392, 0.584, 0.929}, {0.482, 0.408, 0.933}, {0.255, 0.412, 0.882}, {0.000, 0.000, 1.000}, {0.000, 0.000, 0.804}, {0.000, 0.000, 0.545}, {0.000, 0.000, 0.502}, {0.098, 0.098, 0.439}, {1.000, 0.973, 0.863}, {1.000, 0.922, 0.804}, {1.000, 0.894, 0.769}, {1.000, 0.871, 0.678}, {0.961, 0.871, 0.702}, {0.871, 0.722, 0.529}, {0.824, 0.706, 0.549}, {0.737, 0.561, 0.561}, {0.957, 0.643, 0.376}, {0.855, 0.647, 0.125}, {0.722, 0.525, 0.043}, {0.804, 0.522, 0.247}, {0.824, 0.412, 0.118}, {0.545, 0.271, 0.075}, {0.627, 0.322, 0.176}, {0.647, 0.165, 0.165}, {0.502, 0.000, 0.000}, {1.000, 1.000, 1.000}, {0.941, 1.000, 0.941}, {0.961, 1.000, 0.980}, {1.000, 0.961, 0.933}, {0.961, 0.961, 0.863}, {0.992, 0.961, 0.902}, {1.000, 0.980, 0.941}, {1.000, 1.000, 0.941}, {0.980, 0.922, 0.843}, {0.980, 0.941, 0.902}, {1.000, 0.941, 0.961}, {1.000, 0.894, 0.882}, {0.863, 0.863, 0.863}, {0.827, 0.827, 0.827}, {0.753, 0.753, 0.753}, {0.663, 0.663, 0.663}, {0.502, 0.502, 0.502}, {0.412, 0.412, 0.412}, {0.467, 0.533, 0.600}, {0.439, 0.502, 0.565}, {0.184, 0.310, 0.310}, {0.000, 0.000, 0.000}};
 
 
 void mydraw(int x,int y)
@@ -48,7 +53,6 @@ void mydraw(int x,int y)
     glBegin(GL_POINTS);
         glVertex2f(x,y);
     glEnd();
-    //printf("%d,%d,",x,y);
 }
 
 void drawStrokeText(GLfloat x, GLfloat y, GLfloat sx, GLfloat sy, char str[], GLfloat width, GLubyte R, GLubyte G, GLubyte B)
@@ -87,7 +91,6 @@ void drawStrokeText(GLfloat x, GLfloat y, GLfloat sx, GLfloat sy, char str[], GL
 
 void displayInfo()
 {
-
 	//drawStrokeText(x, y, sx, sy, str[], width, R, G, B);
 	drawStrokeText(130, 550, 0.35, 0.4, "Cambridge Institute of Technology", 4, 0, 0, 255);
 	drawStrokeText(170, 510, 0.2, 0.2, "Department of Computer Science & Engineering", 2.5, 0, 0, 255);
@@ -100,14 +103,13 @@ void displayInfo()
     drawStrokeText(230, 230, 0.2, 0.2, "1CD14CS091", 2.5, 255, 255, 0);
 	drawStrokeText(600, 230, 0.2, 0.2, "Manjunath.S.S", 2.5, 255, 255, 0);
 	drawStrokeText(300, 190, 0.2, 0.2, "for the academic year 2017", 2.0, 255, 0, 255);
-
     drawStrokeText(340, 145, 0.2, 0.2, "Under the Guidance of", 2.2, 0, 255, 255);
 	drawStrokeText(320, 100, 0.2, 0.2, "Prof. Sonia Maria D'Souza", 2.5, 255, 255, 0);
 	drawStrokeText(410, 60, 0.2, 0.2, "Prof. Ganesh", 2.5, 255, 255, 0);
-
-
 	drawStrokeText(360, 20, 0.15, 0.15, "(Press right click to explore)", 2, 255, 0, 0);
 }
+
+//Function to plot pixels in color palette
 void mydrawpalette(int val,int *mat,int size)
 {
     int i;
@@ -118,35 +120,33 @@ void mydrawpalette(int val,int *mat,int size)
     }
 }
 
-float current[]={0.0,0.0,0.0};
-float previous[]={0.0,0.0,0.0};
-int newcodeslno,oldcodeslno;
-
-void copy(float *source, float *destination)
+//Function to mycopy array of RGB values along with corresponding array index
+void mycopy(float *source, float *destination)
 {
-
         destination[0]=source[0];
         destination[1]=source[1];
         destination[2]=source[2];
         oldcodeslno=newcodeslno;
 }
 
+//Function to determine the color which lies on current cursor position
 void sel_clr(int curx, int cury)
 {
 
-	float ra;
-    int x=960.0;
-	int y=540.0;
+	float ra; //Radius
+    int x=960.0; //Half of SCREEN_WIDTH=1090/2
+	int y=540.0; //Half of SCREEN_HEIGHT=1080/2
 	int i,j;
-	cury=glutGet(GLUT_WINDOW_HEIGHT)-cury;
+	cury=1080-cury;
+    //Checks if color of 1st octet is selected
     if(curx>=x && cury>=y && curx-960>=cury-540)
     {
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
-            copy(current,previous);
+            mycopy(current,previous);
 			current[0]=oct_clr[i][0];
             current[1]=oct_clr[i][1];
             current[2]=oct_clr[i][2];
@@ -154,14 +154,15 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 2nd octet is selected
     else if(curx>=x && cury>=y && curx-960<cury-540)
     {
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
-            copy(current,previous);
+            mycopy(current,previous);
 			current[0]=oct_clr[16+i][0];
             current[1]=oct_clr[16+i][1];
             current[2]=oct_clr[16+i][2];
@@ -169,14 +170,15 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 3rd octet is selected
     else if(curx<x && cury>=y && 960-curx<cury-540)
     {
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
-            copy(current,previous);
+            mycopy(current,previous);
 			current[0]=oct_clr[32+i][0];
             current[1]=oct_clr[32+i][1];
             current[2]=oct_clr[32+i][2];
@@ -184,14 +186,15 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 4th octet is selected
     else if(curx<x && cury>=y && 960-curx>=cury-540)
     {
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
-            copy(current,previous);
+            mycopy(current,previous);
 			current[0]=oct_clr[48+i][0];
             current[1]=oct_clr[48+i][1];
             current[2]=oct_clr[48+i][2];
@@ -199,14 +202,15 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 5th octet is selected
     else if(curx<x && cury<y && 960-curx>=540-cury)
     {
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
-            copy(current,previous);
+            mycopy(current,previous);
 			current[0]=oct_clr[64+i][0];
             current[1]=oct_clr[64+i][1];
             current[2]=oct_clr[64+i][2];
@@ -214,13 +218,14 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 6th octet is selected
     else if(curx<x && cury<y && 960-curx<540-cury)
     {
-        copy(current,previous);
+        mycopy(current,previous);
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
 			current[0]=oct_clr[80+i][0];
             current[1]=oct_clr[80+i][1];
@@ -229,13 +234,14 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
+    //Checks if color of 7th octet is selected
     else if(curx>=x && cury<y && curx-960<540-cury)
     {
-        copy(current,previous);
+        mycopy(current,previous);
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
 			current[0]=oct_clr[96+i][0];
             current[1]=oct_clr[96+i][1];
@@ -244,13 +250,14 @@ void sel_clr(int curx, int cury)
 			glutPostRedisplay();
         }
     }
-    else
+    //Checks if color of 8th octet is selected
+    else if(curx>=x && cury<y && curx-960>=540-cury)
     {
-        copy(current,previous);
+        mycopy(current,previous);
         ra=(curx-x)*(curx-x)+(cury-y)*(cury-y);
         ra=sqrt(ra);
         for(i=0;i<16;i++)
-		if(ra>=sel[i][0] && ra<=sel[i][1])
+		if(ra>=bounds[i][0] && ra<=bounds[i][1])
         {
 			current[0]=oct_clr[112+i][0];
             current[1]=oct_clr[112+i][1];
@@ -261,49 +268,55 @@ void sel_clr(int curx, int cury)
     }
 }
 
+//Prints cursor coordinates in terminal
 void printthis(int x,int y)
 {
-    printf("x=%d-y=%d\n",x,glutGet(GLUT_WINDOW_HEIGHT)-y);
+    printf("The cursor co-ordinates are x = %d, y = %d\n",x,glutGet(GLUT_WINDOW_HEIGHT)-y);
 }
-void init(void) {
+
+void myinit(void)
+{
     if(miniproj==1 || miniproj==0)
     {
-      glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glShadeModel(GL_FLAT);
         glEnable(GL_DEPTH_TEST);
-
         quadratic = gluNewQuadric();
         gluQuadricNormals(quadratic, GLU_SMOOTH);
         gluQuadricTexture(quadratic, GL_TRUE);
     }
-    else if(miniproj==2)
-    {
-      glutInitDisplayMode(GLUT_SINGLE|GLUT_RGBA);
-        glClearColor(0.0, 1.0, 1.0,1.0);
-    	glColor3f(1.0,0.0,0.0);
-    	glMatrixMode(GL_PROJECTION);
-    	glLoadIdentity();
-    	gluOrtho2D(0.0,1920.0,0.0,1080.0);
-    }
     else if(miniproj==3)
     {
-        glutInitDisplayMode(GLUT_SINGLE|GLUT_RGBA);
-        glClearColor(0.0,0.0,0.0,1.0);
-    	glColor3f(1.0,0.0,0.0);
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
     	glMatrixMode(GL_PROJECTION);
     	glLoadIdentity();
-    	gluOrtho2D(0.0,1920.0,0.0,1080.0);
+        gluOrtho2D(0.0,1920.0,0.0,1080.0);
+    }
+    else if(miniproj==2)
+    {
+        glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glClearColor(0.0, 1.0, 1.0,1.0);
+    	glMatrixMode(GL_PROJECTION);
+    	glLoadIdentity();
+        gluOrtho2D(0,glutGet(GLUT_SCREEN_WIDTH),0,glutGet(GLUT_SCREEN_HEIGHT));
     }
 }
-char *itoa(long i, char* s, int dummy_radix) {
+
+//dummy-value added to make it compatible with both Windows and Ubuntu
+char *itoa(long i, char* s, int dummy_radix)
+{
     sprintf(s, "%ld", i);
     return s;
 }
 
-void output(int x, int y, float r, float g, float b, int font, char *string)
+//Function which renders text
+void mytext(int x, int y, float r, float g, float b, int font, char *string)
 {
-  glColor3f( r, g, b );
+  //glColor3f( r, g, b );
   glRasterPos2f(x, y);
   int len, i;
   len = (int)strlen(string);
@@ -314,33 +327,39 @@ void output(int x, int y, float r, float g, float b, int font, char *string)
 
 void cursorfunc()
 {
-    int x,y,minx,maxx,ymin,ymax;
-    if(xval>100)
-    {
-        minx=0;
-        maxx=100;
-       // ymin=;
-        //ymax=;
-    }
-    else if(xval<100)
-    {
-        minx=glutGet(GLUT_WINDOW_WIDTH)-100;
-        maxx=glutGet(GLUT_WINDOW_WIDTH);
-    }
+    int x,y;
     char charx[32],chary[32];
-    glColor4f(1,0,0,0.6);
-	glBegin(GL_POLYGON);
-		glVertex2f(minx,0);
-		glVertex2f(minx,1080);
-		glVertex2f(maxx,1080);
-		glVertex2f(maxx,0);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        glVertex2f(0,0);
-		glVertex2f(0,100);
-		glVertex2f(1920,100);
-		glVertex2f(1920,0);
+    //Drawing some random picture in background
+    glColor3f(1.0,1.0,0.0);
+    glBegin(GL_POLYGON);
+		glVertex2f(0,0);
+		glVertex2f(0,400);
+		glVertex2f(400,600);
+		glVertex2f(600,0);
+         glColor3f(0.0,1.0,0.0);
+        glVertex2f(550,800);
+		glVertex2f(550,900);
+		glVertex2f(900,1000);
+		glVertex2f(1000,550);
 	glEnd();
 
+    glColor4f(1,0,0,0.2);
+	glBegin(GL_POLYGON);
+    //Drawing background for vertical scale
+		glVertex2f(0,0);
+		glVertex2f(0,glutGet(GLUT_WINDOW_HEIGHT));
+		glVertex2f(100,glutGet(GLUT_WINDOW_HEIGHT));
+		glVertex2f(100,0);
+    //Drawing background for horizontal scale
+        glVertex2f(0,0);
+		glVertex2f(0,100);
+		glVertex2f(glutGet(GLUT_WINDOW_WIDTH),100);
+		glVertex2f(glutGet(GLUT_WINDOW_WIDTH),0);
+	glEnd();
+
+    //Drawing scale marking for every 20 pixels vertically
     glColor3f(1.0,1.0,1.0);
     for(y=100;y<=glutGet(GLUT_WINDOW_HEIGHT);y+=20)
     {
@@ -348,30 +367,44 @@ void cursorfunc()
             glVertex2f(0,y);
             glVertex2f(50,y);
         glEnd();
+        //Rendering pixel value at every 100th pixel
         if(y%100==0)
         {
             itoa(y,chary,10);
-            output(50,y-6,1.0,1.0,0.0,0,chary);
+            mytext(50,y-6,1.0,1.0,0.0,0,chary);
         }
     }
 
+    //Drawing scale marking for every 20 pixels horizontally
     for(x=100;x<=glutGet(GLUT_WINDOW_WIDTH);x+=20)
     {
         glBegin(GL_LINES);
             glVertex2f(x,0);
             glVertex2f(x,50);
         glEnd();
+        //Rendering pixel value at every 200th pixel
         if(x%200==0)
         {
             itoa(x,charx,10);
-            output(x-20,60,1.0,1.0,0.0,0,charx);
+            mytext(x-20,60,1.0,1.0,0.0,0,charx);
         }
     }
 
-    output(7,60,1.0,1.0,0.0,0,"x =");
-    output(7,30,1.0,1.0,0.0,0,"y =");
-    output(44,60,1.0,1.0,0.0,0,char_xval);
-    output(44,30,1.0,1.0,0.0,0,char_yval);
+    //Drawing dynamic scale lines corresponging to cursor co-ordinates
+    glColor4f(0.0,0.0,0.0,0.5);
+    glBegin(GL_LINES);
+        //Vertical scale line
+        glVertex2f(xval,0);
+        glVertex2f(xval,scaleliney);
+        //Horizontal scale line
+        glVertex2f(0,yval);
+        glVertex2f(scalelinex,yval);
+    glEnd();
+    //Rendering dynamic cursor co-ordinates
+    mytext(7,60,1.0,1.0,0.0,0,"x =");
+    mytext(7,30,1.0,1.0,0.0,0,"y =");
+    mytext(44,60,1.0,1.0,0.0,0,char_xval);
+    mytext(44,30,1.0,1.0,0.0,0,char_yval);
 }
 
 void drawSolidCircle(GLfloat x, GLfloat y, GLfloat radius) {
@@ -385,18 +418,11 @@ void drawSolidCircle(GLfloat x, GLfloat y, GLfloat radius) {
     glEnd();
 }
 
-void display(void) {
-    if(miniproj==0)
-    {
-        displayInfo();
-        glFlush();
-        glutSwapBuffers();
-    }
-    if(miniproj==1)
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+void walkingman()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glColor3f(0.8, 0.8, 0.8);
+        glColor3f(0.0,1.0,0.0);
         // Ground
         int minx = (int) centerX - 30;
         int maxx = (int) centerX + 30;
@@ -566,43 +592,13 @@ void display(void) {
                 glPopMatrix();
             glPopMatrix();
         glPopMatrix();
+}
 
-        glFlush();
-        glutSwapBuffers();
-    }
-    else if(miniproj==2)
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(1.0,1.0,0.0);
-    glBegin(GL_POLYGON);
-		glVertex2f(0,0);
-		glVertex2f(0,400);
-		glVertex2f(400,600);
-		glVertex2f(600,0);
-         glColor3f(0.0,1.0,0.0);
-        glVertex2f(550,800);
-		glVertex2f(550,900);
-		glVertex2f(900,1000);
-		glVertex2f(1000,550);
-	glEnd();
+void colorpalette()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
 
-  glColor4f(0.0,0.0,0.0,1.0);
-  glBegin(GL_LINES);
-    glVertex2f(xval,0);
-    glVertex2f(xval,100);
-
-    glVertex2f(0,yval);
-    glVertex2f(100,yval);
-  glEnd();
-
-  	cursorfunc();
-	glFlush();
-    }
-    else if(miniproj==3)
-    {
-        glClear(GL_COLOR_BUFFER_BIT);
-
-         mydrawpalette(0,oct0_0,sizeof(oct0_0));
+    mydrawpalette(0,oct0_0,sizeof(oct0_0));
 	mydrawpalette(1,oct0_1,sizeof(oct0_1));
 	mydrawpalette(2,oct0_2,sizeof(oct0_2));
 	mydrawpalette(3,oct0_3,sizeof(oct0_3));
@@ -618,7 +614,7 @@ void display(void) {
 	mydrawpalette(13,oct0_13,sizeof(oct0_13));
 	mydrawpalette(14,oct0_14,sizeof(oct0_14));
 	mydrawpalette(15,oct0_15,sizeof(oct0_15));
-	
+
 	mydrawpalette(16,oct1_0,sizeof(oct1_0));
 	mydrawpalette(17,oct1_1,sizeof(oct1_1));
 	mydrawpalette(18,oct1_2,sizeof(oct1_2));
@@ -635,7 +631,7 @@ void display(void) {
 	mydrawpalette(29,oct1_13,sizeof(oct1_13));
 	mydrawpalette(30,oct1_14,sizeof(oct1_14));
 	mydrawpalette(31,oct1_15,sizeof(oct1_15));
-	
+
 	mydrawpalette(32,oct2_0,sizeof(oct2_0));
 	mydrawpalette(33,oct2_1,sizeof(oct2_1));
 	mydrawpalette(34,oct2_2,sizeof(oct2_2));
@@ -652,7 +648,7 @@ void display(void) {
 	mydrawpalette(45,oct2_13,sizeof(oct2_13));
 	mydrawpalette(46,oct2_14,sizeof(oct2_14));
 	mydrawpalette(47,oct2_15,sizeof(oct2_15));
-	
+
 	mydrawpalette(48,oct3_0,sizeof(oct3_0));
 	mydrawpalette(49,oct3_1,sizeof(oct3_1));
 	mydrawpalette(50,oct3_2,sizeof(oct3_2));
@@ -669,7 +665,7 @@ void display(void) {
 	mydrawpalette(61,oct3_13,sizeof(oct3_13));
 	mydrawpalette(62,oct3_14,sizeof(oct3_14));
 	mydrawpalette(63,oct3_15,sizeof(oct3_15));
-	
+
 	mydrawpalette(64,oct4_0,sizeof(oct4_0));
 	mydrawpalette(65,oct4_1,sizeof(oct4_1));
 	mydrawpalette(66,oct4_2,sizeof(oct4_2));
@@ -686,7 +682,7 @@ void display(void) {
 	mydrawpalette(77,oct4_13,sizeof(oct4_13));
 	mydrawpalette(78,oct4_14,sizeof(oct4_14));
 	mydrawpalette(79,oct4_15,sizeof(oct4_15));
-	
+
 	mydrawpalette(80,oct5_0,sizeof(oct5_0));
 	mydrawpalette(81,oct5_1,sizeof(oct5_1));
 	mydrawpalette(82,oct5_2,sizeof(oct5_2));
@@ -703,7 +699,7 @@ void display(void) {
 	mydrawpalette(93,oct5_13,sizeof(oct5_13));
 	mydrawpalette(94,oct5_14,sizeof(oct5_14));
 	mydrawpalette(95,oct5_15,sizeof(oct5_15));
-	
+
 	mydrawpalette(96,oct6_0,sizeof(oct6_0));
 	mydrawpalette(97,oct6_1,sizeof(oct6_1));
 	mydrawpalette(98,oct6_2,sizeof(oct6_2));
@@ -720,7 +716,7 @@ void display(void) {
 	mydrawpalette(109,oct6_13,sizeof(oct6_13));
 	mydrawpalette(110,oct6_14,sizeof(oct6_14));
 	mydrawpalette(111,oct6_15,sizeof(oct6_15));
-	
+
 	mydrawpalette(112,oct7_0,sizeof(oct7_0));
 	mydrawpalette(113,oct7_1,sizeof(oct7_1));
 	mydrawpalette(114,oct7_2,sizeof(oct7_2));
@@ -738,6 +734,7 @@ void display(void) {
 	mydrawpalette(126,oct7_14,sizeof(oct7_14));
 	mydrawpalette(127,oct7_15,sizeof(oct7_15));
 
+    //Displaying previous and current selected colors
     glColor3fv(previous);
     glBegin(GL_POLYGON);
         glVertex2f(100,200);
@@ -745,7 +742,7 @@ void display(void) {
         glVertex2f(400,300);
         glVertex2f(400,200);
     glEnd();
-    output(50,350,1.0,1.0,0.0,0,code[oldcodeslno]);
+    mytext(150,320,1.0,1.0,0.0,0,code[oldcodeslno]);
 
     glColor3fv(current);
     glBegin(GL_POLYGON);
@@ -754,29 +751,37 @@ void display(void) {
         glVertex2f(400,200);
         glVertex2f(400,100);
     glEnd();
-    output(50,50,1.0,1.0,0.0,0,code[newcodeslno]);
-        /*for(i=0;i<glutGet(GLUT_WINDOW_WIDTH);i++)
-            for(j=0;j<glutGet(GLUT_WINDOW_HEIGHT);j++)
-        {
-            if(i>=x && j>=y && i-960<j-540)
-            {
-                ra=(i-x)*(i-x)+(j-y)*(j-y);
-                ra=sqrt(ra);
-                if(ra>=100 && ra<=125)
-                    {
-    					mydraw(i,j);
-                    }
-            }
-        }*/
+    mytext(150,70,1.0,1.0,0.0,0,code[newcodeslno]);
+}
 
-
+void display(void)
+{
+    if(miniproj==0)
+    {
+        displayInfo();
+        glFlush();
+        glutSwapBuffers();
+    }
+    if(miniproj==1)
+    {
+        walkingman();
+        glFlush();
+        glutSwapBuffers();
+    }
+    else if(miniproj==2)
+    {
+  	    cursorfunc();
+	    glFlush();
+    }
+    else if(miniproj==3)
+    {
+        colorpalette();
     	glFlush();
     }
 }
 
-static double lookatx = 3.5, lookatz = 3.5, lookaty = 0;
-static int scrw, scrh;
-void reshape(int w, int h) {
+void reshape(int w, int h)
+{
     if(miniproj==1)
     {
         scrw = w;
@@ -789,9 +794,14 @@ void reshape(int w, int h) {
         glLoadIdentity();
         gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
     }
+    if(miniproj!=1)
+    {
+        glViewport(0, 0, w, h);
+    }
 }
 
-void passiveMotionFunc(int x, int y) {
+void passiveMotionFunc(int x, int y)
+{
     if(miniproj==1)
     {
         lookatx = -5.0 + (double) x / scrw * 10.0;
@@ -801,7 +811,6 @@ void passiveMotionFunc(int x, int y) {
         if (tmpy >= -GLOBAL_SIZE * LEG_XSCALE * 2)
             lookaty = tmpy;
         glLoadIdentity();
-
         gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
     }
     else if(miniproj==2)
@@ -810,13 +819,8 @@ void passiveMotionFunc(int x, int y) {
         yval=glutGet(GLUT_WINDOW_HEIGHT)-y;
         itoa(xval,char_xval,10);
         itoa(yval,char_yval,10);
-	    glutPostRedisplay();
     }
-    else if(miniproj==3)
-    {
-        xval=x;
-        yval=glutGet(GLUT_WINDOW_HEIGHT)-y;
-    }
+    glutPostRedisplay();
 }
 
 void myMouse(int button,int state,int x,int y)
@@ -826,85 +830,86 @@ void myMouse(int button,int state,int x,int y)
         if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
             printthis(x,y);
         if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
-            exit(0);
+        {
+            if(scalelinex==100)
+            {
+                scalelinex=glutGet(GLUT_WINDOW_WIDTH);
+                scaleliney=glutGet(GLUT_WINDOW_HEIGHT);
+            }
+            else
+            {
+                scalelinex=scaleliney=100;
+            }
+        }
     }
     else if(miniproj==3)
     {
         if(button==GLUT_LEFT_BUTTON&&state==GLUT_DOWN)
-            sel_clr(x,y);
-        if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
-            exit(0);
+        {
+            //Converting x and y wrt development computer screen size so that it works on all screen sizes
+            float dx=1920/(float)glutGet(GLUT_WINDOW_WIDTH);
+            float dy=1080/(float)glutGet(GLUT_WINDOW_HEIGHT);
+            sel_clr(dx*x,dy*y);
+        }
     }
-    if(button==GLUT_RIGHT_BUTTON&&state==GLUT_DOWN)
-            exit(0);
+    glutPostRedisplay();
 }
 
-void myKeyboard(unsigned char key, int x, int y) {
+void myKeyboard(unsigned char key, int x, int y)
+{
+    if(key==27) //Quit on pressing "Esc" key
+            exit(0);
     if(miniproj==0)
     {
         switch (key) {
             case '1': system("./a.out 1"); exit(0);
-            case '2':system("./a.out 2"); exit(0);
-            case '3':system("./a.out 3"); exit(0);
-            default:
-                break;
+            case '2': system("./a.out 2"); exit(0);
+            case '3': system("./a.out 3"); exit(0);
         }
     }
     else if(miniproj==1)
     {
-        switch (key) {
-            case 'a':
-                vangle = (vangle + 1) % 360;
-                break;
-            case 'd':
-                vangle = (vangle - 1) % 360;
-                break;
-            case 27:
-                exit(0);
-            case 's':
-                vangle = (vangle + 180) % 360;
-                break;
+        switch (key)
+        {
+            case 'a': vangle = (vangle + 1) % 360; break;
+            case 'd': vangle = (vangle - 1) % 360; break;
+            case 's': vangle = (vangle + 180) % 360; break;
             case '0': system("./a.out 0"); exit(0);
-            case '2':system("./a.out 2"); exit(0);
-            case '3':system("./a.out 3"); exit(0);
-            default:
-                break;
+            case '2': system("./a.out 2"); exit(0);
+            case '3': system("./a.out 3"); exit(0);
         }
     }
     else if(miniproj==2)
     {
-        switch (key) {
-        case '0': system("./a.out 0"); exit(0);
-        case '1': system("./a.out 1"); exit(0);
-        case '3':system("./a.out 3"); exit(0);
-        default:
-            break;
-    }
+        switch (key)
+        {
+            case '0': system("./a.out 0"); exit(0);
+            case '1': system("./a.out 1"); exit(0);
+            case '3': system("./a.out 3"); exit(0);
+        }
     }
     else if(miniproj==3)
     {
-        switch (key) {
+        switch (key)
+        {
             case '0': system("./a.out 0"); exit(0);
             case '1': system("./a.out 1"); exit(0);
-            case '2':system("./a.out 2"); exit(0);
-            default:
-                break;
+            case '2': system("./a.out 2"); exit(0);
         }
     }
+
 }
 
-bool dir1 = false;
-static const double legLength = 2 * GLOBAL_SIZE * LEG_XSCALE + GLOBAL_SIZE * FOOT_YSCALE;
-
-void calculateData(int id) {
+void calculateData(int id)
+{
     if(miniproj==1)
     {
         centerY = legLength * sin(-leftHigherLegAngle / 180.0 * PI) - legLength;
         double mvx = cos(vangle / 180.0 * PI) * 0.035;
         double mvz = sin(vangle / 180.0 * PI) * 0.035;
             //printf("X=%lf Y=%lf Z=%lf\n", centerX, centerY, centerZ);
-
-        if (!dir1) {
+        if (!dir1)
+        {
             leftHigherLegAngle --;
             rightHigherLegAngle ++;
             if (leftHigherLegAngle >= -75) {
@@ -925,7 +930,8 @@ void calculateData(int id) {
             rightHigherHandAngle --;
             rightLowerHandAngle --;
         }
-        else {
+        else
+        {
             leftHigherLegAngle ++;
             rightHigherLegAngle --;
             if (rightHigherLegAngle >= -75) {
@@ -951,36 +957,24 @@ void calculateData(int id) {
         glLoadIdentity();
         //printf("X=%lf,Z=%lf, lX=%lf,lZ=%lf\n", centerX, centerZ, lookatx, lookatz);
         gluLookAt(lookatx, lookaty, lookatz, centerX, 0, centerZ, 0.0, 1.0, 0.0);
-
         glutPostRedisplay();
         glutTimerFunc(10, calculateData, 0);
     }
 }
 
-int main(int argc, char **argv) {
-    if(!argv[1])
-    {
-        miniproj=0;
-    }
-
+int main(int argc, char **argv)
+{
     if(argv[1])
-    {
         miniproj=atoi(argv[1]);
-    }
-
     glutInit(&argc, argv);
-
-    glutInitWindowSize(1920, 1080);
-    glutInitWindowPosition(100, 100);
-    glutCreateWindow(argv[0]);
-    init();
+    glutInitWindowPosition(0,0);
+    glutCreateWindow("OpenGL Utility Tools and Walking Man");
+    myinit();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutKeyboardFunc(myKeyboard);
     glutPassiveMotionFunc(passiveMotionFunc);
     glutMouseFunc(myMouse);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glutFullScreen();
     calculateData(0);
     glutMainLoop();
