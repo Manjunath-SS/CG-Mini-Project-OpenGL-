@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "mypixels"
+#include <unistd.h>
 
 #define GLOBAL_SIZE 0.5
 #define LEG_XSCALE 2.0
@@ -107,7 +108,7 @@ void displayInstructions()
     mytext(900,1000,"Instructions");
     mytext(100,900,"Press \"1\" to switch to Walking Man");
     mytext(200,850,"Press \" a \" to turn towards left");
-    mytext(200,800,"Press \" d \" to turn towards rigth");
+    mytext(200,800,"Press \" d \" to turn towards right");
     mytext(200,750,"Press \" s \" to turn by 180 degrees");
     mytext(100,650,"Press \"2\" to switch to Cursor Coordinate Scale");
     mytext(200,600,"\" Right Click \" to toggle scale pointers");
@@ -861,15 +862,15 @@ void myKeyboard(unsigned char key, int x, int y)
             exit(0);
     if(miniproj==-1)
     {
-        system("FinalWin.exe 0"); exit(0);
+        execlp("FinalWin.exe", "FinalWin.exe", "0", NULL);//system("FinalWin.exe 0"); exit(0);
     }
     else if(miniproj==0)
     {
         switch (key)
         {
-            case '1': system("FinalWin.exe 1"); exit(0);
-            case '2': system("FinalWin.exe 2"); exit(0);
-            case '3': system("FinalWin.exe 3"); exit(0);
+            case '1': execlp("FinalWin.exe", "FinalWin.exe", "1", NULL);//system("FinalWin.exe 1"); exit(0);
+            case '2': execlp("FinalWin.exe", "FinalWin.exe", "2", NULL);//system("FinalWin.exe 2"); exit(0);
+            case '3': execlp("FinalWin.exe", "FinalWin.exe", "3", NULL);//system("FinalWin.exe 3"); exit(0);
         }
     }
     else if(miniproj==1)
@@ -877,35 +878,37 @@ void myKeyboard(unsigned char key, int x, int y)
         switch (key)
         {
         	case '1': break;
+            case 'a': vangle = (vangle + 1) % 360; break;
             case 'd': vangle = (vangle - 1) % 360; break;
             case 's': vangle = (vangle + 180) % 360; break;
-            case '2': system("FinalWin.exe 2"); exit(0);
-            case '3': system("FinalWin.exe 3"); exit(0);
-            default: system("FinalWin.exe 0"); exit(0);
+            case '2': execlp("FinalWin.exe", "FinalWin.exe", "2", NULL);//system("FinalWin.exe 2"); exit(0);
+            case '3': execlp("FinalWin.exe", "FinalWin.exe", "3", NULL);//system("FinalWin.exe 3"); exit(0);
+            default: execlp("FinalWin.exe", "FinalWin.exe", "0", NULL);//system("FinalWin.exe 0"); exit(0);
         }
     }
     else if(miniproj==2)
     {
         switch (key)
         {
-            case '1': system("FinalWin.exe 1"); exit(0);
+            case '1': execlp("FinalWin.exe", "FinalWin.exe", "1", NULL);//system("FinalWin.exe 1"); exit(0);
             case '2': break;
-            case '3': system("FinalWin.exe 3"); exit(0);
-            default: system("FinalWin.exe 0"); exit(0);
+            case '3': execlp("FinalWin.exe", "FinalWin.exe", "3", NULL);//system("FinalWin.exe 3"); exit(0);
+            default: execlp("FinalWin.exe", "FinalWin.exe", "0", NULL);//system("FinalWin.exe 0"); exit(0);
         }
     }
     else if(miniproj==3)
     {
         switch (key)
         {
-            case '1': system("FinalWin.exe 1"); exit(0);
-            case '2': system("FinalWin.exe 2"); exit(0);
+            case '1': execlp("FinalWin.exe", "FinalWin.exe", "1", NULL);//system("FinalWin.exe 1"); exit(0);
+            case '2': execlp("FinalWin.exe", "FinalWin.exe", "2", NULL);//system("FinalWin.exe 2"); exit(0);
             case '3': break;
-            default: system("FinalWin.exe 0"); exit(0);
+            default: execlp("FinalWin.exe", "FinalWin.exe", "0", NULL);//system("FinalWin.exe 0"); exit(0);
         }
     }
 
 }
+
 
 void calculateData(int id)
 {

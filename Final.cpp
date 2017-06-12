@@ -107,7 +107,7 @@ void displayInstructions()
     mytext(900,1000,"Instructions");
     mytext(100,900,"Press \"1\" to switch to Walking Man");
     mytext(200,850,"Press \" a \" to turn towards left");
-    mytext(200,800,"Press \" d \" to turn towards rigth");
+    mytext(200,800,"Press \" d \" to turn towards right");
     mytext(200,750,"Press \" s \" to turn by 180 degrees");
     mytext(100,650,"Press \"2\" to switch to Cursor Coordinate Scale");
     mytext(200,600,"\" Right Click \" to toggle scale pointers");
@@ -877,6 +877,7 @@ void myKeyboard(unsigned char key, int x, int y)
         switch (key)
         {
         	case '1': break;
+            case 'a': vangle = (vangle + 1) % 360; break;
             case 'd': vangle = (vangle - 1) % 360; break;
             case 's': vangle = (vangle + 180) % 360; break;
             case '2': system("./a.out 2"); exit(0);
